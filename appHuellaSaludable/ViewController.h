@@ -13,5 +13,8 @@
 // Acciones (Botones)
 - (IBAction)btnRegistrarHabitoPresionado:(id)sender;
 - (IBAction)btnVerDesafiosPresionado:(id)sender;
+- (IBAction)btnReiniciarPresionado:(id)sender;
+- (IBAction)btnSimularDiaPresionado:(id)sender;
+
 
 @end

@@ -1,57 +1,77 @@
 #import "RegistroViewController.h"
 
-@interface RegistroViewController ()
+@interface RegistroViewController () <UIPickerViewDelegate, UIPickerViewDataSource> // 1. Agregamos protocolos
+
+@property (nonatomic, strong) NSArray<NSDictionary *> *opcionesHabitos; // La lista de datos
+@property (nonatomic, strong) NSDictionary *seleccionActual; // Lo que el usuario eligió
+
 @end
 
 @implementation RegistroViewController
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    // Configuración inicial visual si quieres
     self.title = @"Registrar Hábito";
+    
+    // 2. Definimos las opciones predeterminadas con su impacto real
+    self.opcionesHabitos = @[
+        @{@"nombre": @"Caminar al trabajo/escuela", @"categoria": @"Transporte", @"impacto": @(-0.5)},
+        @{@"nombre": @"Usar bicicleta", @"categoria": @"Transporte", @"impacto": @(-0.4)},
+        @{@"nombre": @"Compartir automóvil (Car pooling)", @"categoria": @"Transporte", @"impacto": @(-0.2)},
+        @{@"nombre": @"Apagar luces al salir", @"categoria": @"Energía", @"impacto": @(-0.15)},
+        @{@"nombre": @"Desconectar cargadores", @"categoria": @"Energía", @"impacto": @(-0.1)},
+        @{@"nombre": @"Usar focos LED", @"categoria": @"Energía", @"impacto": @(-0.05)},
+        @{@"nombre": @"Reciclar plástico/vidrio", @"categoria": @"Reciclaje", @"impacto": @(-0.2)},
+        @{@"nombre": @"Llevar bolsas de tela al súper", @"categoria": @"Reciclaje", @"impacto": @(-0.15)},
+        @{@"nombre": @"Compostar residuos orgánicos", @"categoria": @"Reciclaje", @"impacto": @(-0.3)}
+    ];
+    
+    // Selección por defecto (el primero)
+    self.seleccionActual = self.opcionesHabitos[0];
 }
 
 - (IBAction)btnGuardarPresionado:(id)sender {
-    // 1. Validar que escribió algo
-    NSString *descripcion = self.campoTextoDescripcion.text;
-    if (descripcion.length == 0) {
-        [self mostrarAlerta:@"Falta información" mensaje:@"Por favor escribe una descripción de tu hábito."];
-        return;
+    // Ya no hay validaciones de texto vacío porque siempre hay algo seleccionado en el picker
+        
+        // Extraemos los datos del diccionario seleccionado
+        NSString *nombre = self.seleccionActual[@"nombre"];
+        NSString *categoria = self.seleccionActual[@"categoria"];
+        double impacto = [self.seleccionActual[@"impacto"] doubleValue];
+        
+        // Creamos el hábito
+        Habito *nuevoHabito = [[Habito alloc] initWithNombre:nombre
+                                                   categoria:categoria
+                                                     impacto:impacto];
+        
+        // Guardamos
+        [[GestorDeHabitos sharedInstance] agregarHabito:nuevoHabito];
+        
+        // Confirmación
+        [self mostrarAlertaExito];
     }
-    
-    // 2. Determinar categoría e impacto (Lógica simple para el proyecto)
-    // Indices del segment: 0 = Transporte, 1 = Energía, 2 = Reciclaje
-    NSString *categoria = @"";
-    double impacto = 0.0;
-    
-    switch (self.selectorCategoria.selectedSegmentIndex) {
-        case 0:
-            categoria = @"Transporte";
-            impacto = -0.5; // Ahorras 0.5 kg de CO2 (Ej. usar bici)
-            break;
-        case 1:
-            categoria = @"Energía";
-            impacto = -0.3; // Ahorras 0.3 kg (Ej. apagar luces)
-            break;
-        case 2:
-            categoria = @"Reciclaje";
-            impacto = -0.1; // Ahorras 0.1 kg (Ej. reciclar botella)
-            break;
-        default:
-            break;
-    }
-    
-    // 3. Crear el objeto Habito
-    Habito *nuevoHabito = [[Habito alloc] initWithNombre:descripcion
-                                               categoria:categoria
-                                                 impacto:impacto];
-    
-    // 4. Guardarlo en el Gestor (Singleton)
-    [[GestorDeHabitos sharedInstance] agregarHabito:nuevoHabito];
-    
-    // 5. Confirmar y salir
-    [self mostrarAlertaExito];
+
+//Métodos UI picker
+// ¿Cuántas columnas tiene?
+- (NSInteger)numberOfComponentsInPickerView:(UIPickerView *)pickerView {
+    return 1;
 }
+
+// ¿Cuántas filas tiene?
+- (NSInteger)pickerView:(UIPickerView *)pickerView numberOfRowsInComponent:(NSInteger)component {
+    return self.opcionesHabitos.count;
+}
+
+// ¿Qué texto muestro en cada fila?
+- (NSString *)pickerView:(UIPickerView *)pickerView titleForRow:(NSInteger)row forComponent:(NSInteger)component {
+    NSDictionary *item = self.opcionesHabitos[row];
+    return item[@"nombre"];
+}
+
+// ¿Qué pasa cuando seleccionan una fila?
+- (void)pickerView:(UIPickerView *)pickerView didSelectRow:(NSInteger)row inComponent:(NSInteger)component {
+    self.seleccionActual = self.opcionesHabitos[row];
+}
+
 
 // Método auxiliar para mostrar alertas
 - (void)mostrarAlerta:(NSString *)titulo mensaje:(NSString *)mensaje {

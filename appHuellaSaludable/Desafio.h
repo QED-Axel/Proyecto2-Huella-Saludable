@@ -2,7 +2,7 @@
 //  Desafio.h
 //  appHuellaSaludable
 //
-//  Created by Manolo Mijares Lara on 03/12/25.
+//  
 //
 
 

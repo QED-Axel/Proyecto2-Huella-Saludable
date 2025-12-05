@@ -2,7 +2,7 @@
 //  Desafio.m
 //  appHuellaSaludable
 //
-//  Created by Manolo Mijares Lara on 03/12/25.
+//  
 //
 
 
@@ -31,7 +31,12 @@ static NSString *const kCompletadoKey = @"Completado";
         [[Desafio alloc] initWithTitulo:@"Sin Plásticos" descripcion:@"Evita usar botellas o bolsas de plástico por 3 días."],
         [[Desafio alloc] initWithTitulo:@"Transporte Verde" descripcion:@"Usa bicicleta o camina a tu destino 2 veces esta semana."],
         [[Desafio alloc] initWithTitulo:@"Desconexión Total" descripcion:@"Desconecta aparatos electrónicos al dormir durante 5 días."],
-        [[Desafio alloc] initWithTitulo:@"Ducha Rápida" descripcion:@"Báñate en menos de 5 minutos durante toda la semana."]
+        [[Desafio alloc] initWithTitulo:@"Ducha Rápida" descripcion:@"Báñate en menos de 5 minutos durante toda la semana."],
+        [[Desafio alloc] initWithTitulo:@"Día sin Carne" descripcion:@"Intenta llevar una dieta vegetariana por un día completo para reducir emisiones."],
+        [[Desafio alloc] initWithTitulo:@"Luz Natural" descripcion:@"Mantén las luces apagadas y usa solo luz solar hasta que anochezca."],
+        [[Desafio alloc] initWithTitulo:@"Modo Eco" descripcion:@"Lava tu ropa usando agua fría y sécala al sol en lugar de usar secadora."],
+        [[Desafio alloc] initWithTitulo:@"Termo Propio" descripcion:@"Lleva tu propia taza o termo si compras café para evitar vasos desechables."],
+        [[Desafio alloc] initWithTitulo:@"Cero Desperdicio" descripcion:@"Planifica tus comidas para no tirar nada de comida a la basura esta semana."]
     ];
 }
 

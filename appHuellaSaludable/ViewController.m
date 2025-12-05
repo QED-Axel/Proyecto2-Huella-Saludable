@@ -29,7 +29,7 @@
     self.lblHuellaTotal.text = [NSString stringWithFormat:@"%.2f kg CO2", totalHuella];
     
     if (totalHuella < 0) {
-        self.lblHuellaTotal.textColor = [UIColor systemGreenColor];
+        self.lblHuellaTotal.textColor = [UIColor colorWithRed:0.0/255.0 green:150.0/255.0 blue:0.0/255.0 alpha:1.0];
         self.lblMensajeMotivacional.text = @"¡Estás ayudando al planeta!";
     } else {
         self.lblHuellaTotal.textColor = [UIColor blackColor];
@@ -90,6 +90,51 @@
 
 - (IBAction)btnRegistrarHabitoPresionado:(id)sender {
     // El Segue del storyboard hace el trabajo de navegación.
+}
+
+- (IBAction)btnSimularDiaPresionado:(id)sender {
+    // 1. Llamar al Gestor para viajar en el tiempo
+        [[GestorDeHabitos sharedInstance] simularAvanceDeDia];
+        
+        // 2. Actualizar la gráfica (ahora se verá movida)
+        [self actualizarDatos];
+        
+        // 3. Feedback visual
+        UIAlertController *alerta = [UIAlertController alertControllerWithTitle:@"¡Viaje en el tiempo!"
+                                                                        message:@"Hemos avanzado 1 día. Revisa la gráfica y espera la notificación."
+                                                                 preferredStyle:UIAlertControllerStyleAlert];
+        [alerta addAction:[UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:nil]];
+        [self presentViewController:alerta animated:YES completion:nil];
+}
+
+- (IBAction)btnReiniciarPresionado:(id)sender {
+        // 1. Crear la alerta de precaución
+        UIAlertController *alerta = [UIAlertController alertControllerWithTitle:@"¿Reiniciar todo?"
+                                                                        message:@"Esta acción borrará todos tus hábitos registrados y reiniciará los desafíos. No se puede deshacer."
+                                                                 preferredStyle:UIAlertControllerStyleActionSheet]; // ActionSheet se ve más elegante para esto
+        
+        // 2. Acción de Borrar (Destructiva)
+        UIAlertAction *borrar = [UIAlertAction actionWithTitle:@"Sí, borrar todo"
+                                                         style:UIAlertActionStyleDestructive
+                                                       handler:^(UIAlertAction * _Nonnull action) {
+            // Llamamos al Gestor para que limpie
+            [[GestorDeHabitos sharedInstance] reiniciarDatosDeFabrica];
+            
+            // Actualizamos la pantalla inmediatamente para que se vea todo en ceros
+            [self actualizarDatos];
+        }];
+        
+        // 3. Acción de Cancelar
+        UIAlertAction *cancelar = [UIAlertAction actionWithTitle:@"Cancelar"
+                                                           style:UIAlertActionStyleCancel
+                                                         handler:nil];
+        
+        // 4. Agregar botones y mostrar
+        [alerta addAction:borrar];
+        [alerta addAction:cancelar];
+        
+        [self presentViewController:alerta animated:YES completion:nil];
+    
 }
 
 - (IBAction)btnVerDesafiosPresionado:(id)sender {

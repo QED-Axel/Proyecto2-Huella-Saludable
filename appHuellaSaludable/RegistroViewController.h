@@ -3,9 +3,8 @@
 
 @interface RegistroViewController : UIViewController
 
-// UI Elements
-@property (weak, nonatomic) IBOutlet UISegmentedControl *selectorCategoria;
-@property (weak, nonatomic) IBOutlet UITextField *campoTextoDescripcion;
+// NUEVO: Outlet para el Picker (borra los de segmented y textfield si quieres limpiar)
+@property (weak, nonatomic) IBOutlet UIPickerView *pickerHabitos;
 
 // Acción del botón
 - (IBAction)btnGuardarPresionado:(id)sender;

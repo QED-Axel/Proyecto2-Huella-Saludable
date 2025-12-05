@@ -10,6 +10,7 @@
 // Redefinimos internamente como readwrite para poder modificar las listas aquí dentro
 @property (nonatomic, strong, readwrite) NSMutableArray<Habito *> *listaHabitos;
 @property (nonatomic, strong, readwrite) NSMutableArray<Desafio *> *listaDesafios;
+@property (nonatomic, assign) NSInteger diasSimulados;
 @end
 
 @implementation GestorDeHabitos
@@ -44,10 +45,12 @@
 - (void)agregarHabito:(Habito *)nuevoHabito {
     if (!nuevoHabito) return;
     
-    // 1. Agregar a la lista en memoria
-    [self.listaHabitos addObject:nuevoHabito];
+    // TRUCO: Si estamos simulando días, alteramos la fecha del hábito
+    if (self.diasSimulados > 0) {
+        nuevoHabito.fechaRegistro = [[NSDate date] dateByAddingTimeInterval:self.diasSimulados * 86400];
+    }
     
-    // 2. Guardar en disco
+    [self.listaHabitos addObject:nuevoHabito];
     [self guardarDatosLocales];
 }
 
@@ -132,9 +135,15 @@
 - (NSArray<NSNumber *> *)obtenerHistorialImpactoUltimos7Dias {
     NSMutableArray *historial = [NSMutableArray array];
     NSCalendar *calendar = [NSCalendar currentCalendar];
-    NSDate *hoy = [NSDate date];
     
-    // Iteramos los últimos 7 días (de hace 6 días hasta hoy)
+    // --- CAMBIO AQUÍ: ---
+    // En lugar de usar la fecha real directamente, calculamos la fecha simulada.
+    NSDate *hoyReal = [NSDate date];
+    // Sumamos los días simulados (86400 segundos por día)
+    NSDate *hoy = [hoyReal dateByAddingTimeInterval:self.diasSimulados * 86400];
+    // --------------------
+    
+    // Iteramos los últimos 7 días (de hace 6 días hasta la fecha "hoy" simulada)
     for (NSInteger i = 6; i >= 0; i--) {
         // Calcular la fecha objetivo (Hoy - i días)
         NSDate *fechaObjetivo = [calendar dateByAddingUnit:NSCalendarUnitDay value:-i toDate:hoy options:0];
@@ -148,7 +157,7 @@
             }
         }
         
-        // Agregamos la suma al array (como NSNumber porque los Arrays no guardan doubles primitivos)
+        // Agregamos la suma al array
         [historial addObject:@(sumaDelDia)];
     }
     
@@ -186,8 +195,8 @@
 
     // 3. Configurar el disparador (Ejemplo: Todos los días a las 8:00 PM)
     NSDateComponents *dateInfo = [[NSDateComponents alloc] init];
-    dateInfo.hour = 20; // 20:00 horas
-    dateInfo.minute = 0;
+    dateInfo.hour = 17; // 20:00 horas
+    dateInfo.minute = 31;
     
     UNCalendarNotificationTrigger *trigger = [UNCalendarNotificationTrigger triggerWithDateMatchingComponents:dateInfo repeats:YES];
 
@@ -200,6 +209,40 @@
             NSLog(@"Error al agendar notificación: %@", error);
         }
     }];
+}
+
+// Reset
+
+- (void)reiniciarDatosDeFabrica {
+    // 1. Borrar todos los hábitos
+    [self.listaHabitos removeAllObjects];
+    
+    // 2. Reiniciar los desafíos a su estado original (sin checks)
+    self.listaDesafios = [[Desafio obtenerDesafiosSemanales] mutableCopy];
+    
+    // 3. Guardar estos cambios vacíos en el disco inmediatamente
+    [self guardarDatosLocales];
+    
+    NSLog(@"App reiniciada a estado de fábrica.");
+}
+
+- (void)simularAvanceDeDia {
+    // 1. Aumentamos el contador de días
+    self.diasSimulados += 1;
+    NSLog(@"Has viajado al futuro: +%ld días", (long)self.diasSimulados);
+    
+    // 2. Disparamos la notificación INMEDIATAMENTE (para la demo)
+    UNMutableNotificationContent *content = [[UNMutableNotificationContent alloc] init];
+    content.title = [NSString stringWithFormat:@"Día %ld: ¡Sigue así!", (long)self.diasSimulados];
+    content.body = @"Nuevo día, nueva oportunidad. ¡Registra tus hábitos!";
+    content.sound = [UNNotificationSound defaultSound];
+    
+    // Trigger de 1 segundo (casi inmediato)
+    UNTimeIntervalNotificationTrigger *trigger = [UNTimeIntervalNotificationTrigger triggerWithTimeInterval:1 repeats:NO];
+    
+    UNNotificationRequest *request = [UNNotificationRequest requestWithIdentifier:@"SimulacionDia" content:content trigger:trigger];
+    
+    [[UNUserNotificationCenter currentNotificationCenter] addNotificationRequest:request withCompletionHandler:nil];
 }
 
 @end

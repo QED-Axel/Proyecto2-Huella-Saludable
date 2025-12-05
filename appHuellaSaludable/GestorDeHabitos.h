@@ -43,4 +43,10 @@
 
 // Metodo para notificaciones
 - (void)programarNotificacionesLocales;
+
+//Metodo para resetear
+- (void)reiniciarDatosDeFabrica;
+
+// SIMULACIÓN: Avanza un día en el calendario interno y lanza notificación
+- (void)simularAvanceDeDia;
 @end
